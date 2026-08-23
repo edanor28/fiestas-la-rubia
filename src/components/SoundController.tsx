@@ -56,14 +56,14 @@ export const SoundController: React.FC = () => {
     };
 
     const handlePhase = (e: CustomEvent<{ phase: number }>) => {
-      currentPhase.current = e.detail.phase;
+      currentPhase.current = e.detail?.phase ?? 0;
       updateVolumes(currentPhase.current, isMutedRef.current);
     };
 
-    window.addEventListener('scrollPhase' as any, handlePhase);
+    window.addEventListener('scrollPhase', handlePhase);
     
     return () => {
-      window.removeEventListener('scrollPhase' as any, handlePhase);
+      window.removeEventListener('scrollPhase', handlePhase);
       space.pause();
       party.pause();
     };

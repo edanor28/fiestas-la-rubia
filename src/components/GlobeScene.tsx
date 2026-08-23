@@ -25,18 +25,18 @@ export const GlobeScene: React.FC = () => {
   const lastIdx = useRef(0);
 
   // Obtener el token de variables de entorno o simulación en pruebas
-  const mapToken = (typeof window !== 'undefined' && (window as any).__MOCK_NO_TOKEN__)
+  const mapToken = (typeof window !== 'undefined' && window.__MOCK_NO_TOKEN__)
     ? undefined
     : import.meta.env.VITE_MAPBOX_TOKEN;
 
-  const events = (typeof window !== 'undefined' && (window as any).__MOCK_FIESTA_EVENTS__)
-    ? (window as any).__MOCK_FIESTA_EVENTS__
+  const events = (typeof window !== 'undefined' && window.__MOCK_FIESTA_EVENTS__)
+    ? window.__MOCK_FIESTA_EVENTS__
     : FIESTA_EVENTS;
 
   useEffect(() => {
     if (!mapContainerRef.current || !mapToken) return;
 
-    if (typeof window !== 'undefined' && (window as any).__E2E_MOCK_MAPBOX__) {
+    if (typeof window !== 'undefined' && window.__E2E_MOCK_MAPBOX__) {
       const mockCanvas = document.createElement('canvas');
       mockCanvas.className = 'mapboxgl-canvas';
       mockCanvas.setAttribute('data-testid', 'mock-mapbox-canvas');
