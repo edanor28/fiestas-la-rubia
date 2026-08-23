@@ -79,6 +79,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         id={`event-card-${event.id}`}
+        data-testid="event-card"
+        data-event-id={event.id}
         className={`relative w-full rounded-2xl bg-[#0F172A]/85 backdrop-blur-md border border-white/15 drop-shadow-2xl shadow-2xl p-5 text-white flex flex-col gap-4 overflow-y-auto lg:max-h-[calc(100vh-9rem)] scrollbar-hide transition-all duration-300 ${className}`}
       >
       {/* Glow highlight decorativo sutil superior */}
@@ -89,31 +91,32 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
       <header className="relative z-10 flex items-center justify-between gap-2 flex-wrap">
         <span
           id={`event-badge-${event.id}`}
+          data-testid="event-badge"
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F43F5E] text-white text-xs font-bold tracking-wide uppercase shadow-sm shadow-rose-900/40"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           {event.badge}
         </span>
 
-        <span className="text-xs font-medium text-slate-300 tracking-tight">
+        <span data-testid="event-date" className="text-xs font-medium text-slate-300 tracking-tight">
           {event.date}
         </span>
       </header>
 
       {/* Título y Ubicación */}
       <section className="relative z-10 flex flex-col gap-1.5">
-        <h3 className="text-xl sm:text-2xl font-black text-slate-50 leading-tight tracking-tight">
+        <h3 data-testid="event-title" className="text-xl sm:text-2xl font-black text-slate-50 leading-tight tracking-tight">
           {event.name}
         </h3>
         
         <div className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-300">
           <MapPin className="w-4 h-4 text-[#38BDF8] shrink-0" />
-          <span className="font-medium truncate">{event.addressStreet}</span>
+          <span data-testid="event-address" className="font-medium truncate">{event.addressStreet}</span>
         </div>
       </section>
 
       {/* Descripción corta */}
-      <p className="relative z-10 text-xs sm:text-sm text-slate-300 leading-relaxed">
+      <p data-testid="event-description" className="relative z-10 text-xs sm:text-sm text-slate-300 leading-relaxed">
         {event.description}
       </p>
 
@@ -121,6 +124,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
       {event.sponsor.mapsUrl ? (
         <a
           id={`event-sponsor-${event.id}`}
+          data-testid="event-sponsor"
           href={event.sponsor.mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -131,6 +135,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
       ) : (
         <section
           id={`event-sponsor-${event.id}`}
+          data-testid="event-sponsor"
           className="relative z-10 bg-[#1E293B] rounded-xl p-3.5 border border-white/10 flex items-start gap-3 shadow-inner"
         >
           <SponsorContent sponsor={event.sponsor} />
@@ -138,7 +143,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
       )}
 
       {/* Minigalería de Ediciones Anteriores */}
-      <section className="relative z-10 flex flex-col gap-1.5">
+      <section data-testid="event-past-photos" className="relative z-10 flex flex-col gap-1.5">
         <span className="text-[11px] font-semibold tracking-wider uppercase text-slate-400">
           Recuerdos de ediciones anteriores
         </span>
@@ -166,6 +171,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
         {/* Botón Primario: Google Maps GPS */}
         <a
           id={`btn-maps-${event.id}`}
+          data-testid="btn-maps"
           href={event.googleMapsUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -179,6 +185,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
         {/* Botón Secundario: Compartir en WhatsApp */}
         <a
           id={`btn-share-${event.id}`}
+          data-testid="btn-share-whatsapp"
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"

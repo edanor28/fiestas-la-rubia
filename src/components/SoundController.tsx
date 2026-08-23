@@ -101,6 +101,7 @@ export const SoundController: React.FC = () => {
   return (
     <button 
       onClick={toggleMute}
+      data-testid="sound-toggle-btn"
       className="fixed bottom-6 left-6 z-50 p-3 bg-[#0F172A]/80 backdrop-blur-md border border-white/15 rounded-full text-white shadow-xl hover:scale-110 hover:border-[#38BDF8] transition-all duration-300"
       aria-label={isMuted ? "Activar sonido" : "Silenciar sonido"}
     >

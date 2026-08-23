@@ -24,103 +24,131 @@ export const GlobeScene: React.FC = () => {
   const lastPhase = useRef(0);
   const lastIdx = useRef(0);
 
-  // Obtener el token exclusivamente de variables de entorno por seguridad
-  const mapToken = import.meta.env.VITE_MAPBOX_TOKEN;
+  // Obtener el token de variables de entorno o simulación en pruebas
+  const mapToken = (typeof window !== 'undefined' && (window as any).__MOCK_NO_TOKEN__)
+    ? undefined
+    : import.meta.env.VITE_MAPBOX_TOKEN;
+
+  const events = (typeof window !== 'undefined' && (window as any).__MOCK_FIESTA_EVENTS__)
+    ? (window as any).__MOCK_FIESTA_EVENTS__
+    : FIESTA_EVENTS;
 
   useEffect(() => {
     if (!mapContainerRef.current || !mapToken) return;
 
-    mapboxgl.accessToken = mapToken;
-    const isMobile = window.innerWidth < 768;
+    if (typeof window !== 'undefined' && (window as any).__E2E_MOCK_MAPBOX__) {
+      const mockCanvas = document.createElement('canvas');
+      mockCanvas.className = 'mapboxgl-canvas';
+      mockCanvas.setAttribute('data-testid', 'mock-mapbox-canvas');
+      mapContainerRef.current.appendChild(mockCanvas);
+      return () => {
+        mockCanvas.remove();
+      };
+    }
 
-    // Inicializar mapa de Mapbox
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/satellite-streets-v12', // Estilo Satélite con calles
-      center: [FIESTA_EVENTS[0].location.lng, FIESTA_EVENTS[0].location.lat],
-      zoom: 1.5, // Altitud espacial
-      pitch: 0,
-      bearing: 0,
-      projection: 'globe' // Renderiza la Tierra como un globo 3D
-    });
+    let map: mapboxgl.Map | null = null;
+    try {
+      mapboxgl.accessToken = mapToken;
 
-    mapRef.current = map;
-
-    map.on('style.load', () => {
-      // Configuramos la atmósfera del globo (cielo base integrado, mucho más ligero que la capa 'sky')
-      map.setFog({
-        'color': 'rgb(186, 210, 235)', // Lower atmosphere
-        'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
-        'horizon-blend': 0.02, // Atmosphere thickness
-        'space-color': 'rgb(5, 11, 20)', // Background color
-        'star-intensity': 0.6 // Background star brightness
+      // Inicializar mapa de Mapbox
+      map = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: 'mapbox://styles/mapbox/satellite-streets-v12', // Estilo Satélite con calles
+        center: [events[0].location.lng, events[0].location.lat],
+        zoom: 1.5, // Altitud espacial
+        pitch: 0,
+        bearing: 0,
+        projection: 'globe' // Renderiza la Tierra como un globo 3D
       });
 
-      // Añadir marcadores visuales (puntos brillantes) en la ubicación de cada evento
-      map.addSource('events-points', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: FIESTA_EVENTS.map(ev => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: [ev.location.lng, ev.location.lat]
-            },
-            properties: {
-              id: ev.id,
-              name: ev.name
-            }
-          }))
-        }
+      mapRef.current = map;
+
+      map.on('style.load', () => {
+        // Configuramos la atmósfera del globo (cielo base integrado, mucho más ligero que la capa 'sky')
+        map?.setFog({
+          'color': 'rgb(186, 210, 235)', // Lower atmosphere
+          'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
+          'horizon-blend': 0.02, // Atmosphere thickness
+          'space-color': 'rgb(5, 11, 20)', // Background color
+          'star-intensity': 0.6 // Background star brightness
+        });
+
+        // Añadir marcadores visuales (puntos brillantes) en la ubicación de cada evento
+        map?.addSource('events-points', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: events.map(ev => ({
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [ev.location.lng, ev.location.lat]
+              },
+              properties: {
+                id: ev.id,
+                name: ev.name
+              }
+            }))
+          }
+        });
+
+        // Capa de halo (resplandor animado)
+        map?.addLayer({
+          id: 'events-halo',
+          type: 'circle',
+          source: 'events-points',
+          paint: {
+            'circle-radius': 15,
+            'circle-color': '#F43F5E',
+            'circle-opacity': 0.3,
+            'circle-blur': 1,
+            'circle-pitch-alignment': 'map'
+          }
+        });
+
+        // Capa central (punto fijo)
+        map?.addLayer({
+          id: 'events-core',
+          type: 'circle',
+          source: 'events-points',
+          paint: {
+            'circle-radius': 6,
+            'circle-color': '#F43F5E',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#FFFFFF',
+            'circle-pitch-alignment': 'map'
+          }
+        });
+        
+        // Deshabilitar controles manuales para que el GSAP tenga el control total
+        map?.scrollZoom.disable();
+        map?.boxZoom.disable();
+        map?.dragRotate.disable();
+        map?.dragPan.disable();
+        map?.keyboard.disable();
+        map?.doubleClickZoom.disable();
+        map?.touchZoomRotate.disable();
       });
 
-      // Capa de halo (resplandor animado)
-      map.addLayer({
-        id: 'events-halo',
-        type: 'circle',
-        source: 'events-points',
-        paint: {
-          'circle-radius': 15,
-          'circle-color': '#F43F5E',
-          'circle-opacity': 0.3,
-          'circle-blur': 1,
-          'circle-pitch-alignment': 'map'
-        }
+      map.on('error', (e) => {
+        console.warn("Mapbox non-critical map event:", e);
       });
+    } catch (err) {
+      console.warn("Mapbox initialization error (handled):", err);
+    }
 
-      // Capa central (punto fijo)
-      map.addLayer({
-        id: 'events-core',
-        type: 'circle',
-        source: 'events-points',
-        paint: {
-          'circle-radius': 6,
-          'circle-color': '#F43F5E',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#FFFFFF',
-          'circle-pitch-alignment': 'map'
-        }
-      });
-      
-      // Deshabilitar controles manuales para que el GSAP tenga el control total
-      map.scrollZoom.disable();
-      map.boxZoom.disable();
-      map.dragRotate.disable();
-      map.dragPan.disable();
-      map.keyboard.disable();
-      map.doubleClickZoom.disable();
-      map.touchZoomRotate.disable();
-    });
-
-    return () => map.remove();
+    return () => {
+      try {
+        map?.remove();
+      } catch {}
+    };
   }, [mapToken]);
 
   useEffect(() => {
-    if (!containerRef.current || !globeWrapperRef.current || !mapRef.current) return;
+    if (!containerRef.current || !globeWrapperRef.current) return;
 
     const map = mapRef.current;
-    const totalEvents = FIESTA_EVENTS.length;
+    const totalEvents = events.length;
 
     // Constantes matemáticas para el vuelo
     const spaceZoom = 2; // Vista desde el espacio (globo entero)
@@ -130,8 +158,8 @@ export const GlobeScene: React.FC = () => {
 
     // Calcular el estado máximo (Peak) de la transición entre dos eventos
     const getPeakState = (fromIdx: number, toIdx: number) => {
-      const ev1 = FIESTA_EVENTS[fromIdx];
-      const ev2 = FIESTA_EVENTS[toIdx];
+      const ev1 = events[fromIdx];
+      const ev2 = events[toIdx];
       const dist = getDistance(ev1.location.lat, ev1.location.lng, ev2.location.lat, ev2.location.lng);
       
       const lng = (ev1.location.lng + ev2.location.lng) / 2;
@@ -150,7 +178,7 @@ export const GlobeScene: React.FC = () => {
     };
 
     const getStreetState = (idx: number) => {
-      const ev = FIESTA_EVENTS[idx];
+      const ev = events[idx];
       return { lng: ev.location.lng, lat: ev.location.lat, zoom: streetZoom, pitch: streetPitch, bearing: 45 };
     };
 
@@ -244,12 +272,14 @@ export const GlobeScene: React.FC = () => {
 
         // Usamos jumpTo para evitar conflictos con las animaciones nativas de Mapbox,
         // ya que el ScrollTrigger dicta los valores precisos en cada frame (scrubbing)
-        map.jumpTo({
-          center: [targetState.lng, targetState.lat],
-          zoom: targetState.zoom,
-          pitch: targetState.pitch,
-          bearing: targetState.bearing
-        });
+        try {
+          mapRef.current?.jumpTo({
+            center: [targetState.lng, targetState.lat],
+            zoom: targetState.zoom,
+            pitch: targetState.pitch,
+            bearing: targetState.bearing
+          });
+        } catch {}
       }
     });
 
@@ -260,7 +290,7 @@ export const GlobeScene: React.FC = () => {
 
   if (!mapToken) {
     return (
-      <div className="w-full h-screen bg-[#050B14] flex flex-col items-center justify-center p-6 text-center">
+      <div data-testid="mapbox-token-error" className="w-full h-screen bg-[#050B14] flex flex-col items-center justify-center p-6 text-center">
         <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6 max-w-lg">
           <h2 className="text-xl font-bold text-red-400 mb-2">Token de Mapbox no encontrado</h2>
           <p className="text-slate-300 text-sm mb-4">
@@ -275,14 +305,14 @@ export const GlobeScene: React.FC = () => {
   }
 
   return (
-    <div ref={containerRef} style={{ height: `${FIESTA_EVENTS.length * 150}vh` }} className="relative w-full bg-[#050B14]">
+    <div ref={containerRef} data-testid="globe-scene-container" style={{ height: `${events.length * 150}vh` }} className="relative w-full bg-[#050B14]">
       <div ref={globeWrapperRef} className="absolute top-0 left-0 w-full h-screen overflow-hidden bg-[#050B14]">
         
         <HeroOverlay ref={heroRef} />
 
         {/* Contenedor del mapa de Mapbox */}
         <div className="absolute top-0 left-0 w-full h-[50vh] lg:h-screen">
-          <div ref={mapContainerRef} className="w-full h-full" />
+          <div ref={mapContainerRef} data-testid="map-container" className="w-full h-full" />
           
           {/* Capa decorativa para integrar el mapa con nuestro fondo oscuro de manera más suave en los bordes */}
           <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(5,11,20,0.8)] lg:shadow-[inset_0_0_200px_rgba(5,11,20,1)]" />
@@ -294,6 +324,7 @@ export const GlobeScene: React.FC = () => {
           - Mobile: BottomSheet ocupando el 50vh inferior con scroll interno.
         */}
         <div
+          data-testid="event-card-container"
           className={`absolute z-20 flex w-full lg:w-auto left-0 bottom-0 lg:bottom-10 lg:left-10 transition-all duration-700 ease-out transform ${
             showCard
               ? 'translate-y-0 opacity-100 lg:scale-100'
@@ -301,12 +332,12 @@ export const GlobeScene: React.FC = () => {
           }`}
         >
           {/* Mobile BottomSheet container / Desktop Floating Card */}
-          <div className="w-full h-[50vh] lg:h-auto bg-[#0F172A] lg:bg-transparent rounded-t-[2.5rem] lg:rounded-none overflow-y-auto lg:overflow-visible shadow-[0_-15px_40px_rgba(0,0,0,0.6)] lg:shadow-none border-t border-white/10 lg:border-none p-5 pb-12 lg:p-0 relative">
+          <div data-testid="bottomsheet-card-wrapper" className="w-full h-[50vh] lg:h-auto bg-[#0F172A] lg:bg-transparent rounded-t-[2.5rem] lg:rounded-none overflow-y-auto lg:overflow-visible shadow-[0_-15px_40px_rgba(0,0,0,0.6)] lg:shadow-none border-t border-white/10 lg:border-none p-5 pb-12 lg:p-0 relative">
             
-            <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 lg:hidden shrink-0" />
+            <div data-testid="mobile-drag-handle" className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 lg:hidden shrink-0" />
             
             <EventCard 
-              event={FIESTA_EVENTS[activeEventIndex]} 
+              event={events[activeEventIndex]} 
               className="w-full max-w-none lg:max-w-[420px] mx-auto !bg-transparent lg:!bg-[#0F172A]/85 !border-none lg:!border lg:!border-white/15 !drop-shadow-none lg:!drop-shadow-2xl !p-0 lg:!p-6 !shadow-none lg:!shadow-2xl" 
             />
           </div>
