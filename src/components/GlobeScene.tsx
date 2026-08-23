@@ -350,9 +350,9 @@ export const GlobeScene: React.FC = () => {
         </div>
 
         {/* 
-          Tarjeta UI (Opción 1 - Floating Glass Card):
-          - Mobile / Tablet (< lg): Tarjeta flotante translúcida con bordes redondeados y márgenes sobre el mapa full-screen.
-          - Desktop (lg): Flotante cuadrante inferior izquierdo (intacto al diseño de escritorio).
+          Tarjeta UI (Single Unified Floating Glass Card):
+          - Mobile / Tablet: Centrada abajo con márgenes.
+          - Desktop (lg): Flotante cuadrante inferior izquierdo.
         */}
         <div
           data-testid="event-card-container"
@@ -362,17 +362,16 @@ export const GlobeScene: React.FC = () => {
               : 'translate-y-8 sm:translate-y-12 opacity-0 scale-95 pointer-events-none'
           }`}
         >
-          {/* Floating Glass Card Wrapper */}
+          {/* Card Wrapper sin duplicar fondos ni bordes */}
           <div 
             data-testid="bottomsheet-card-wrapper" 
-            className="w-full max-w-lg md:max-w-[390px] lg:max-w-[420px] mx-auto md:mx-0 bg-[#0F172A]/85 backdrop-blur-xl border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] drop-shadow-2xl overflow-y-auto max-h-[46vh] sm:max-h-[50vh] md:max-h-[70vh] lg:max-h-[calc(100vh-9rem)] p-4 sm:p-5 lg:p-6 relative scrollbar-hide"
+            className="w-full max-w-md md:max-w-[400px] lg:max-w-[430px] mx-auto md:mx-0 relative"
           >
             {/* Indicador táctil superior en móvil */}
-            <div data-testid="mobile-drag-handle" className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-3 md:hidden shrink-0" />
+            <div data-testid="mobile-drag-handle" className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-2 md:hidden shrink-0" />
             
             <EventCard 
               event={events[activeEventIndex]} 
-              className="w-full !bg-transparent !border-none !drop-shadow-none !p-0 !shadow-none" 
             />
           </div>
         </div>
