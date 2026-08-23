@@ -26,6 +26,33 @@ h1, h2, h3, h4, h5, h6 {
   animation: gradientMove 3s ease infinite;
 }
 
+@keyframes floatBubble {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-50vh) translateX(15px) scale(1.05);
+    opacity: 0.75;
+  }
+  85% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-110vh) translateX(-10px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.animate-float-bubble {
+  animation-name: floatBubble;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
 /* Ocultar barra de scroll para estética limpia pero permitiendo funcionalidad */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;

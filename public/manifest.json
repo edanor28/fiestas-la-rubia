@@ -1,0 +1,18 @@
+{
+  "name": "Fiestas La Rubia 2026",
+  "short_name": "Fiestas La Rubia",
+  "description": "Guía 3D interactiva del programa oficial de las Fiestas de La Rubia 2026 en Valladolid",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050B14",
+  "theme_color": "#050B14",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
+

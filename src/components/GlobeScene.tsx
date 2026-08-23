@@ -7,6 +7,8 @@ import confetti from 'canvas-confetti';
 import { FIESTA_EVENTS } from '../data/events';
 import { EventCard } from './EventCard';
 import { HeroOverlay } from './HeroOverlay';
+import { EventTimeline } from './EventTimeline';
+import { ParticleFX } from './ParticleFX';
 import { getDistance, lerp } from '../utils/math';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -63,15 +65,32 @@ export const GlobeScene: React.FC = () => {
 
       mapRef.current = map;
 
+      const applyFog = (isNight: boolean) => {
+        if (!map) return;
+        try {
+          if (isNight) {
+            map.setFog({
+              'color': 'rgb(186, 210, 235)', // Atmósfera inferior
+              'high-color': 'rgb(36, 92, 223)', // Atmósfera superior
+              'horizon-blend': 0.02, // Grosor atmósfera
+              'space-color': 'rgb(5, 11, 20)', // Espacio oscuro
+              'star-intensity': 0.8 // Brillo estelar
+            });
+          } else {
+            map.setFog({
+              'color': 'rgb(255, 255, 255)', // Cielo diurno claro
+              'high-color': 'rgb(200, 230, 255)',
+              'horizon-blend': 0.08,
+              'space-color': 'rgb(135, 206, 235)', // Azul cielo
+              'star-intensity': 0.0
+            });
+          }
+        } catch {}
+      };
+
       map.on('style.load', () => {
-        // Configuramos la atmósfera del globo (cielo base integrado, mucho más ligero que la capa 'sky')
-        map?.setFog({
-          'color': 'rgb(186, 210, 235)', // Lower atmosphere
-          'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
-          'horizon-blend': 0.02, // Atmosphere thickness
-          'space-color': 'rgb(5, 11, 20)', // Background color
-          'star-intensity': 0.6 // Background star brightness
-        });
+        // Atmósfera nocturna por defecto
+        applyFog(true);
 
         // Añadir marcadores visuales (puntos brillantes) en la ubicación de cada evento
         map?.addSource('events-points', {
@@ -129,6 +148,12 @@ export const GlobeScene: React.FC = () => {
         map?.doubleClickZoom.disable();
         map?.touchZoomRotate.disable();
       });
+
+      // Escuchar cambios de tema Día/Noche
+      const handleThemeChange = (e: CustomEvent<{ isNight: boolean }>) => {
+        applyFog(e.detail?.isNight ?? true);
+      };
+      window.addEventListener('mapThemeChange', handleThemeChange);
 
       map.on('error', (e) => {
         console.warn("Mapbox non-critical map event:", e);
@@ -309,6 +334,12 @@ export const GlobeScene: React.FC = () => {
       <div ref={globeWrapperRef} className="absolute top-0 left-0 w-full h-screen overflow-hidden bg-[#050B14]">
         
         <HeroOverlay ref={heroRef} />
+
+        {/* Selector Rápido / Timeline de Eventos 3D */}
+        <EventTimeline events={events} activeEventIndex={activeEventIndex} />
+
+        {/* Efectos de Partículas Temáticas (Espuma, Discomóvil, Rock) */}
+        <ParticleFX activeEventIndex={activeEventIndex} />
 
         {/* Contenedor del mapa de Mapbox: 100% de la pantalla en todos los dispositivos */}
         <div className="absolute top-0 left-0 w-full h-screen">

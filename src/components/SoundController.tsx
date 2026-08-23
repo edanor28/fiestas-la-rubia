@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
+import { triggerHaptic } from '../utils/haptics';
 
 export const SoundController: React.FC = () => {
   const [isMuted, setIsMuted] = useState(true);
@@ -70,6 +71,7 @@ export const SoundController: React.FC = () => {
   }, []);
 
   const toggleMute = () => {
+    triggerHaptic('light');
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     isMutedRef.current = nextMuted;

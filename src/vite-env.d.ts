@@ -12,6 +12,10 @@ interface ScrollPhaseEventDetail {
   phase: number;
 }
 
+interface MapThemeChangeEventDetail {
+  isNight: boolean;
+}
+
 declare global {
   interface Window {
     __MOCK_NO_TOKEN__?: boolean;
@@ -22,8 +26,8 @@ declare global {
 
   interface WindowEventMap {
     'scrollPhase': CustomEvent<ScrollPhaseEventDetail>;
+    'mapThemeChange': CustomEvent<MapThemeChangeEventDetail>;
   }
 }
 
 export {};
-

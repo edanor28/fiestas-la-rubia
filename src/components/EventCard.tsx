@@ -1,7 +1,9 @@
-import React, { useRef } from 'react';
-import { MapPin, Beer, Share2, Navigation, Sparkles, ExternalLink } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { MapPin, Beer, Share2, Navigation, Sparkles, ExternalLink, CalendarPlus, Check } from 'lucide-react';
 import gsap from 'gsap';
 import type { FiestaEvent } from '../data/events';
+import { generateGoogleCalendarUrl, downloadIcsFile } from '../utils/calendar';
+import { triggerHaptic } from '../utils/haptics';
 
 interface EventCardProps {
   event: FiestaEvent;
@@ -37,7 +39,17 @@ const SponsorContent: React.FC<SponsorContentProps> = ({ sponsor, isLink }) => (
 
 export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) => {
   const whatsappUrl = `https://api.whatsapp.com/send?text=${event.whatsappText}`;
+  const googleCalUrl = generateGoogleCalendarUrl(event);
   const cardRef = useRef<HTMLElement>(null);
+  const [copiedIcs, setCopiedIcs] = useState(false);
+
+  const handleDownloadIcs = (e: React.MouseEvent) => {
+    e.preventDefault();
+    triggerHaptic('success');
+    downloadIcsFile(event);
+    setCopiedIcs(true);
+    setTimeout(() => setCopiedIcs(false), 2500);
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (!cardRef.current || window.innerWidth < 1024) return;
@@ -81,7 +93,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
         id={`event-card-${event.id}`}
         data-testid="event-card"
         data-event-id={event.id}
-        className={`relative w-full rounded-2xl bg-[#0F172A]/85 backdrop-blur-md border border-white/15 drop-shadow-2xl shadow-2xl p-5 text-white flex flex-col gap-4 overflow-y-auto lg:max-h-[calc(100vh-9rem)] scrollbar-hide transition-all duration-300 ${className}`}
+        className={`relative w-full rounded-2xl bg-[#0F172A]/85 backdrop-blur-md border border-white/15 drop-shadow-2xl shadow-2xl p-4 sm:p-5 text-white flex flex-col gap-3 sm:gap-4 overflow-y-auto lg:max-h-[calc(100vh-9rem)] scrollbar-hide transition-all duration-300 ${className}`}
       >
       {/* Glow highlight decorativo sutil superior */}
       <div className="absolute -top-12 -left-12 w-32 h-32 bg-[#F43F5E]/20 rounded-full blur-2xl pointer-events-none" />
@@ -105,7 +117,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
 
       {/* Título y Ubicación */}
       <section className="relative z-10 flex flex-col gap-1.5">
-        <h3 data-testid="event-title" className="text-xl sm:text-2xl font-black text-slate-50 leading-tight tracking-tight">
+        <h3 data-testid="event-title" className="text-lg sm:text-xl font-black text-slate-50 leading-tight tracking-tight">
           {event.name}
         </h3>
         
@@ -128,7 +140,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
           href={event.sponsor.mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative z-10 bg-[#1E293B] rounded-xl p-3.5 border border-white/10 flex items-start gap-3 shadow-inner hover:bg-slate-800 transition-colors cursor-pointer group"
+          onClick={() => triggerHaptic('light')}
+          className="relative z-10 bg-[#1E293B] rounded-xl p-3 border border-white/10 flex items-start gap-3 shadow-inner hover:bg-slate-800 transition-colors cursor-pointer group"
         >
           <SponsorContent sponsor={event.sponsor} isLink={true} />
         </a>
@@ -136,65 +149,105 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
         <section
           id={`event-sponsor-${event.id}`}
           data-testid="event-sponsor"
-          className="relative z-10 bg-[#1E293B] rounded-xl p-3.5 border border-white/10 flex items-start gap-3 shadow-inner"
+          className="relative z-10 bg-[#1E293B] rounded-xl p-3 border border-white/10 flex items-start gap-3 shadow-inner"
         >
           <SponsorContent sponsor={event.sponsor} />
         </section>
       )}
 
       {/* Minigalería de Ediciones Anteriores */}
-      <section data-testid="event-past-photos" className="relative z-10 flex flex-col gap-1.5">
-        <span className="text-[11px] font-semibold tracking-wider uppercase text-slate-400">
-          Recuerdos de ediciones anteriores
-        </span>
-        <div className="grid grid-cols-3 gap-2">
-          {event.pastPhotos.map((photoUrl, index) => (
-            <div
-              key={index}
-              className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-slate-800/80 group"
-            >
-              <img
-                src={photoUrl}
-                alt={`${event.name} recuerdo ${index + 1}`}
-                referrerPolicy="no-referrer"
-                loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-            </div>
-          ))}
-        </div>
-      </section>
+      {event.pastPhotos.length > 0 && (
+        <section data-testid="event-past-photos" className="relative z-10 flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold tracking-wider uppercase text-slate-400">
+            Recuerdos de ediciones anteriores
+          </span>
+          <div className="grid grid-cols-3 gap-2">
+            {event.pastPhotos.map((photoUrl, index) => (
+              <div
+                key={index}
+                className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-slate-800/80 group"
+              >
+                <img
+                  src={photoUrl}
+                  alt={`${event.name} recuerdo ${index + 1}`}
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Llamadas a la Acción (CTAs) */}
-      <footer className="relative z-10 flex flex-col sm:flex-row items-center gap-2.5 pt-1">
-        {/* Botón Primario: Google Maps GPS */}
-        <a
-          id={`btn-maps-${event.id}`}
-          data-testid="btn-maps"
-          href={event.googleMapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#38BDF8] hover:bg-[#7dd3fc] active:bg-[#0284c7] text-[#0F172A] text-sm font-black shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Navigation className="w-4 h-4 fill-current" />
-          <span>Abrir en Google Maps (GPS)</span>
-          <ExternalLink className="w-3.5 h-3.5 opacity-70" />
-        </a>
+      <footer className="relative z-10 flex flex-col gap-2 pt-1">
+        {/* Fila Primaria: Google Maps GPS & WhatsApp */}
+        <div className="flex flex-col sm:flex-row items-center gap-2">
+          {/* Botón Primario: Google Maps GPS */}
+          <a
+            id={`btn-maps-${event.id}`}
+            data-testid="btn-maps"
+            href={event.googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => triggerHaptic('light')}
+            className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#38BDF8] hover:bg-[#7dd3fc] active:bg-[#0284c7] text-[#0F172A] text-xs sm:text-sm font-black shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Navigation className="w-4 h-4 fill-current" />
+            <span>Abrir en Google Maps</span>
+            <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+          </a>
 
-        {/* Botón Secundario: Compartir en WhatsApp */}
-        <a
-          id={`btn-share-${event.id}`}
-          data-testid="btn-share-whatsapp"
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Compartir en WhatsApp"
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Share2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span className="sm:hidden">Compartir plan</span>
-        </a>
+          {/* Botón Secundario: Compartir en WhatsApp */}
+          <a
+            id={`btn-share-${event.id}`}
+            data-testid="btn-share-whatsapp"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Compartir en WhatsApp"
+            onClick={() => triggerHaptic('light')}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Share2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="sm:hidden">Compartir</span>
+          </a>
+        </div>
+
+        {/* Fila Secundaria: Añadir a Calendario (Google Calendar & Apple .ics) */}
+        <div className="flex items-center gap-2">
+          <a
+            data-testid="btn-google-calendar"
+            href={googleCalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => triggerHaptic('light')}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs font-semibold transition-colors"
+          >
+            <CalendarPlus className="w-3.5 h-3.5 text-sky-400" />
+            <span>Google Calendar</span>
+          </a>
+
+          <button
+            data-testid="btn-apple-calendar"
+            onClick={handleDownloadIcs}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-xs font-semibold transition-colors"
+          >
+            {copiedIcs ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Descargado</span>
+              </>
+            ) : (
+              <>
+                <CalendarPlus className="w-3.5 h-3.5 text-rose-400" />
+                <span>Apple / iCal</span>
+              </>
+            )}
+          </button>
+        </div>
       </footer>
     </article>
     </div>

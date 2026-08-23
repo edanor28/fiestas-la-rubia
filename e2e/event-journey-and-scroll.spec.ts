@@ -95,6 +95,41 @@ test.describe('Journey 3 & 4: Scroll Experience, Event Cards & External Actions'
       await expect(sponsorLink).toHaveAttribute('target', '_blank');
       await expect(sponsorLink).toHaveAttribute('rel', 'noopener noreferrer');
     }
+
+    // 4. Validate Google Calendar CTA
+    const btnGoogleCal = page.getByTestId('btn-google-calendar');
+    await expect(btnGoogleCal).toBeVisible();
+    const gcalHref = await btnGoogleCal.getAttribute('href');
+    expect(gcalHref).toContain('calendar.google.com/calendar/render');
+
+    // 5. Validate Apple Calendar / iCal button
+    const btnAppleCal = page.getByTestId('btn-apple-calendar');
+    await expect(btnAppleCal).toBeVisible();
+  });
+
+  test('Interactive Timeline: Clicking an event pill navigates and updates the active event', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.getByTestId('globe-scene-container')).toBeVisible({ timeout: 15000 });
+
+    // Click the 4th pill (Dom 24 · Espuma)
+    const fourthPill = page.getByTestId('timeline-pill-4');
+    await expect(fourthPill).toBeVisible();
+    await fourthPill.click();
+
+    // Scroll to the active position
+    await page.evaluate(() => {
+      window.scrollTo(0, (3 + 0.5) * window.innerHeight * 1.5);
+      window.dispatchEvent(new Event('scroll'));
+    });
+
+    const fourthEvent = FIESTA_EVENTS[3];
+    const title = page.getByTestId('event-title');
+    await expect(title).toHaveText(fourthEvent.name, { timeout: 15000 });
+
+    // Verify foam particles are rendered
+    const foamBubbles = page.getByTestId('foam-bubbles');
+    await expect(foamBubbles).toBeVisible();
   });
 
   test('Scroll Navigation: Scrolling through subsequent event sections updates active event data', async ({ page }) => {

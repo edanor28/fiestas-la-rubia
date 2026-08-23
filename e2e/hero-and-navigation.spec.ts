@@ -39,6 +39,34 @@ test.describe('Journey 1: Initial Page Load & Hero Experience', () => {
     const scrollIndicator = page.getByTestId('hero-scroll-indicator');
     await expect(scrollIndicator).toBeVisible();
     await expect(scrollIndicator).toContainText('Haz scroll para descubrir');
+
+    // 4. Real-time Countdown Timer in Hero
+    const countdown = page.getByTestId('countdown-timer');
+    await expect(countdown).toBeVisible();
+    await expect(page.getByText('Días')).toBeVisible();
+    await expect(page.getByText('Horas')).toBeVisible();
+
+    // 5. Timeline quick selector
+    const timeline = page.getByTestId('event-timeline');
+    await expect(timeline).toBeVisible();
+    await expect(page.getByTestId('timeline-pill-1')).toBeVisible();
+    await expect(page.getByTestId('timeline-pill-2')).toBeVisible();
+  });
+
+  test('Interactive Feature: Theme toggle button switches between Night and Day map modes', async ({ page }) => {
+    await page.goto('/');
+
+    const themeBtn = page.getByTestId('theme-toggle-btn');
+    await expect(themeBtn).toBeVisible();
+    await expect(themeBtn).toHaveAttribute('aria-label', 'Cambiar a modo día');
+
+    // Click to toggle to Day mode
+    await themeBtn.click();
+    await expect(themeBtn).toHaveAttribute('aria-label', 'Cambiar a modo noche');
+
+    // Click to toggle back to Night mode
+    await themeBtn.click();
+    await expect(themeBtn).toHaveAttribute('aria-label', 'Cambiar a modo día');
   });
 
   test('Fallback / Error State: Displays descriptive warning when Mapbox Token is missing or empty', async ({ page }) => {

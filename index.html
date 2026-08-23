@@ -1,18 +1,34 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>La Rubia</title>
-    <meta name="description" content="Programa de Fiestas del barrio de La Rubia." />
-    <meta property="og:title" content="La Rubia" />
-    <meta property="og:description" content="Programa de Fiestas del barrio de La Rubia." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>Fiestas La Rubia 2026 | Programa Oficial en 3D</title>
+    <meta name="description" content="Guía interactiva 3D del programa oficial de las Fiestas de La Rubia 2026 en Valladolid." />
+    
+    <!-- PWA & Mobile Web App Meta -->
+    <meta name="theme-color" content="#050B14" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Fiestas La Rubia" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Open Graph & Social -->
+    <meta property="og:title" content="Fiestas La Rubia 2026 | Programa Oficial en 3D" />
+    <meta property="og:description" content="Guía interactiva 3D del programa oficial de las Fiestas de La Rubia 2026 en Valladolid." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
-  <body>
+  <body class="bg-[#050B14] text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>
 

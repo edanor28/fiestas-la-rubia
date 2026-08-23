@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ChevronDown, Map, Sparkles } from 'lucide-react';
+import { CountdownTimer } from './CountdownTimer';
 
 export const HeroOverlay = forwardRef<HTMLDivElement>((props, ref) => {
   return (
@@ -8,7 +9,7 @@ export const HeroOverlay = forwardRef<HTMLDivElement>((props, ref) => {
       data-testid="hero-overlay"
       className="absolute inset-0 flex flex-col items-center justify-center z-30 transition-opacity duration-75"
     >
-      <div className="text-center px-4 max-w-3xl mx-auto flex flex-col items-center gap-6 mt-12 sm:mt-0 lg:-mt-24">
+      <div className="text-center px-4 max-w-3xl mx-auto flex flex-col items-center gap-5 mt-10 sm:mt-0 lg:-mt-16">
         
         {/* Badge */}
         <div data-testid="hero-badge" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1E293B]/80 backdrop-blur-md border border-white/10 text-white text-sm font-semibold shadow-2xl">
@@ -24,9 +25,14 @@ export const HeroOverlay = forwardRef<HTMLDivElement>((props, ref) => {
         </h2>
         
         {/* Subtítulo */}
-        <p data-testid="hero-subtitle" className="text-slate-300 text-base sm:text-lg md:text-xl max-w-xl font-medium leading-relaxed drop-shadow-md">
+        <p data-testid="hero-subtitle" className="text-slate-300 text-sm sm:text-base md:text-lg max-w-xl font-medium leading-relaxed drop-shadow-md">
           Acompaña el recorrido de los eventos desde el espacio hasta nuestra calle. 
         </p>
+
+        {/* Cuenta Atrás en Tiempo Real */}
+        <div className="pt-1">
+          <CountdownTimer />
+        </div>
       </div>
 
       {/* Flecha Scroll */}
