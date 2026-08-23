@@ -1,0 +1,6 @@
+{
+  "name": "Fiestas La Rubia - Scroll Journey 3D",
+  "description": "Experiencia interactiva de Scrollytelling 3D para el programa de fiestas del barrio de La Rubia con globo terráqueo Three.js, GSAP ScrollTrigger y tarjetas glassmorphism.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
