@@ -310,35 +310,38 @@ export const GlobeScene: React.FC = () => {
         
         <HeroOverlay ref={heroRef} />
 
-        {/* Contenedor del mapa de Mapbox */}
-        <div className="absolute top-0 left-0 w-full h-[50vh] lg:h-screen">
+        {/* Contenedor del mapa de Mapbox: 100% de la pantalla en todos los dispositivos */}
+        <div className="absolute top-0 left-0 w-full h-screen">
           <div ref={mapContainerRef} data-testid="map-container" className="w-full h-full" />
           
           {/* Capa decorativa para integrar el mapa con nuestro fondo oscuro de manera más suave en los bordes */}
-          <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(5,11,20,0.8)] lg:shadow-[inset_0_0_200px_rgba(5,11,20,1)]" />
+          <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_rgba(5,11,20,0.8)] lg:shadow-[inset_0_0_200px_rgba(5,11,20,1)]" />
         </div>
 
         {/* 
-          Tarjeta UI:
-          - Desktop (lg): Flotante cuadrante inferior izquierdo.
-          - Mobile: BottomSheet ocupando el 50vh inferior con scroll interno.
+          Tarjeta UI (Opción 1 - Floating Glass Card):
+          - Mobile / Tablet (< lg): Tarjeta flotante translúcida con bordes redondeados y márgenes sobre el mapa full-screen.
+          - Desktop (lg): Flotante cuadrante inferior izquierdo (intacto al diseño de escritorio).
         */}
         <div
           data-testid="event-card-container"
-          className={`absolute z-20 flex w-full lg:w-auto left-0 bottom-0 lg:bottom-10 lg:left-10 transition-all duration-700 ease-out transform ${
+          className={`absolute z-20 flex w-full md:w-auto left-0 right-0 md:right-auto bottom-3 sm:bottom-6 md:bottom-8 lg:bottom-10 md:left-8 lg:left-10 px-3 sm:px-5 md:px-0 transition-all duration-700 ease-out transform ${
             showCard
-              ? 'translate-y-0 opacity-100 lg:scale-100'
-              : 'translate-y-full lg:translate-y-12 opacity-0 lg:scale-95 pointer-events-none'
+              ? 'translate-y-0 opacity-100 scale-100'
+              : 'translate-y-8 sm:translate-y-12 opacity-0 scale-95 pointer-events-none'
           }`}
         >
-          {/* Mobile BottomSheet container / Desktop Floating Card */}
-          <div data-testid="bottomsheet-card-wrapper" className="w-full h-[50vh] lg:h-auto bg-[#0F172A] lg:bg-transparent rounded-t-[2.5rem] lg:rounded-none overflow-y-auto lg:overflow-visible shadow-[0_-15px_40px_rgba(0,0,0,0.6)] lg:shadow-none border-t border-white/10 lg:border-none p-5 pb-12 lg:p-0 relative">
-            
-            <div data-testid="mobile-drag-handle" className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6 lg:hidden shrink-0" />
+          {/* Floating Glass Card Wrapper */}
+          <div 
+            data-testid="bottomsheet-card-wrapper" 
+            className="w-full max-w-lg md:max-w-[390px] lg:max-w-[420px] mx-auto md:mx-0 bg-[#0F172A]/85 backdrop-blur-xl border border-white/15 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] drop-shadow-2xl overflow-y-auto max-h-[46vh] sm:max-h-[50vh] md:max-h-[70vh] lg:max-h-[calc(100vh-9rem)] p-4 sm:p-5 lg:p-6 relative scrollbar-hide"
+          >
+            {/* Indicador táctil superior en móvil */}
+            <div data-testid="mobile-drag-handle" className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-3 md:hidden shrink-0" />
             
             <EventCard 
               event={events[activeEventIndex]} 
-              className="w-full max-w-none lg:max-w-[420px] mx-auto !bg-transparent lg:!bg-[#0F172A]/85 !border-none lg:!border lg:!border-white/15 !drop-shadow-none lg:!drop-shadow-2xl !p-0 lg:!p-6 !shadow-none lg:!shadow-2xl" 
+              className="w-full !bg-transparent !border-none !drop-shadow-none !p-0 !shadow-none" 
             />
           </div>
         </div>
