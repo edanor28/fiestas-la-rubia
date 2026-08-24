@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { NavBar } from './components/NavBar';
 import { SoundController } from './components/SoundController';
+import { KaldroBadge } from './components/KaldroBadge';
 import { Globe } from 'lucide-react';
 
 // Lazy loading del componente pesado que contiene Mapbox GL JS
@@ -28,6 +29,7 @@ export default function App() {
     <div className="font-sans antialiased text-slate-50 bg-[#050B14] min-h-screen selection:bg-[#F43F5E]/30 selection:text-white">
       <NavBar />
       <SoundController />
+      <KaldroBadge />
       <main>
         <Suspense fallback={<LoadingFallback />}>
           <GlobeScene />

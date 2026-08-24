@@ -51,6 +51,13 @@ test.describe('Journey 1: Initial Page Load & Hero Experience', () => {
     await expect(timeline).toBeVisible();
     await expect(page.getByTestId('timeline-pill-1')).toBeVisible();
     await expect(page.getByTestId('timeline-pill-2')).toBeVisible();
+
+    // 6. Kaldro author badge
+    const kaldroBadge = page.getByTestId('kaldro-badge');
+    await expect(kaldroBadge).toBeVisible();
+    const kaldroLink = kaldroBadge.locator('a');
+    await expect(kaldroLink).toHaveAttribute('href', 'https://kaldro.es');
+    await expect(kaldroLink).toHaveAttribute('target', '_blank');
   });
 
   test('Interactive Feature: Theme toggle button switches between Night and Day map modes', async ({ page }) => {

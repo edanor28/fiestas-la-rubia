@@ -1,7 +1,9 @@
 {
-  "name": "react-example",
+  "name": "fiestas-la-rubia",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "Edward / Kaldro <info@kaldro.es> (https://kaldro.es)",
+  "homepage": "https://kaldro.es",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",

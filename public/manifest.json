@@ -1,7 +1,8 @@
 {
   "name": "Fiestas La Rubia 2026",
   "short_name": "Fiestas La Rubia",
-  "description": "Guía 3D interactiva del programa oficial de las Fiestas de La Rubia 2026 en Valladolid",
+  "description": "Guía 3D interactiva del programa oficial de las Fiestas de La Rubia 2026 en Valladolid. Desarrollado por Kaldro.es.",
+  "author": "Kaldro / Edward (https://kaldro.es)",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#050B14",

@@ -153,6 +153,9 @@ fiestas-la-rubia/
 
 ---
 
-## 📄 Licencia
+## 📄 Autoría y Derechos
 
-Desarrollado para las fiestas del barrio de **La Rubia, Valladolid**.
+Desarrollado y diseñado con ❤️ por **[Kaldro](https://kaldro.es)** / **Edward**.  
+Todos los derechos de desarrollo y propiedad intelectual corresponden a **[kaldro.es](https://kaldro.es)**.
+
+Para colaboraciones o consultas técnicas: [info@kaldro.es](mailto:info@kaldro.es) • [kaldro.es](https://kaldro.es)
