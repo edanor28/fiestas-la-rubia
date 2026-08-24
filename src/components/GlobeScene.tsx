@@ -25,6 +25,8 @@ export const GlobeScene: React.FC = () => {
   
   const lastPhase = useRef(0);
   const lastIdx = useRef(0);
+  const lastCardVisible = useRef(false);
+  const lastDispatchedPhase = useRef(-1);
 
   // Obtener el token de variables de entorno o simulación en pruebas
   const mapToken = (typeof window !== 'undefined' && window.__MOCK_NO_TOKEN__)
@@ -52,7 +54,7 @@ export const GlobeScene: React.FC = () => {
     try {
       mapboxgl.accessToken = mapToken;
 
-      // Inicializar mapa de Mapbox
+      // Inicializar mapa de Mapbox optimizado para alto rendimiento a 60 FPS
       map = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: 'mapbox://styles/mapbox/satellite-streets-v12', // Estilo Satélite con calles
@@ -60,7 +62,11 @@ export const GlobeScene: React.FC = () => {
         zoom: 1.5, // Altitud espacial
         pitch: 0,
         bearing: 0,
-        projection: 'globe' // Renderiza la Tierra como un globo 3D
+        projection: 'globe', // Renderiza la Tierra como un globo 3D
+        renderWorldCopies: false,
+        fadeDuration: 0, // Carga instantánea de texturas sin lag de crossfade GPU
+        trackResize: true,
+        maxTileCacheSize: 40
       });
 
       mapRef.current = map;
@@ -172,7 +178,6 @@ export const GlobeScene: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current || !globeWrapperRef.current) return;
 
-    const map = mapRef.current;
     const totalEvents = events.length;
 
     // Constantes matemáticas para el vuelo
@@ -212,7 +217,9 @@ export const GlobeScene: React.FC = () => {
       start: "top top",
       end: "bottom bottom",
       pin: globeWrapperRef.current,
-      scrub: 1.5,
+      scrub: 0.5, // Respuesta ágil e inmediata a la rueda/scroll sin retraso artificial
+      fastScrollEnd: true,
+      preventOverlaps: true,
       onUpdate: (self) => {
         // Optimización: Animamos la opacidad del hero a través de ref (direct DOM) sin provocar renders
         if (heroRef.current) {
@@ -224,14 +231,17 @@ export const GlobeScene: React.FC = () => {
         const idx = Math.min(Math.floor(rawIndex), totalEvents - 1);
         const phase = rawIndex - idx; // Fase local (0.0 -> 1.0)
 
-        // Despachar el evento para el SoundController
-        window.dispatchEvent(new CustomEvent('scrollPhase', { detail: { phase } }));
+        // Despachar el evento para el SoundController solo si cambia apreciablemente
+        if (Math.abs(phase - lastDispatchedPhase.current) > 0.02) {
+          lastDispatchedPhase.current = phase;
+          window.dispatchEvent(new CustomEvent('scrollPhase', { detail: { phase } }));
+        }
 
-        // Disparar confeti al aterrizar (cuando pasamos de phase < 0.2 a >= 0.2 en el mismo evento)
+        // Disparar confeti al aterrizar
         if (phase >= 0.2 && lastPhase.current < 0.2 && idx === lastIdx.current) {
           confetti({
-            particleCount: 100,
-            spread: 70,
+            particleCount: 60,
+            spread: 60,
             origin: { y: 0.8 },
             colors: ['#F43F5E', '#38BDF8', '#FFFFFF'],
             zIndex: 100
@@ -239,9 +249,12 @@ export const GlobeScene: React.FC = () => {
         }
 
         lastPhase.current = phase;
-        lastIdx.current = idx;
 
-        setActiveEventIndex(idx);
+        // Guard: Solo disparar render de React cuando el índice cambie de verdad
+        if (lastIdx.current !== idx) {
+          lastIdx.current = idx;
+          setActiveEventIndex(idx);
+        }
 
         const streetState = getStreetState(idx);
         let targetState;
@@ -251,8 +264,6 @@ export const GlobeScene: React.FC = () => {
           // Fase 0.0 -> 0.2: Descenso hacia el evento actual
           const p = phase / 0.2; // 0 to 1
           
-          // El estado de inicio es el espacio exterior (si es el primer evento)
-          // o el "Peak" del salto desde el evento anterior.
           const startState = idx === 0 
             ? { lng: streetState.lng, lat: streetState.lat, zoom: spaceZoom, pitch: spacePitch, bearing: 0 }
             : getPeakState(idx - 1, idx);
@@ -276,11 +287,9 @@ export const GlobeScene: React.FC = () => {
           const p = (phase - 0.8) / 0.2; // 0 to 1
           
           if (idx === totalEvents - 1) {
-            // Si es el último evento, no despegamos. Mantenemos la vista.
             targetState = streetState;
-            cardVisible = true; // Mantener la tarjeta visible al final
+            cardVisible = true;
           } else {
-            // El estado final es el "Peak" hacia el siguiente evento.
             const endState = getPeakState(idx, idx + 1);
             targetState = {
               lng: lerp(streetState.lng, endState.lng, p),
@@ -293,10 +302,12 @@ export const GlobeScene: React.FC = () => {
           }
         }
 
-        setShowCard(cardVisible);
+        // Guard: Solo disparar render de React cuando la visibilidad cambie
+        if (lastCardVisible.current !== cardVisible) {
+          lastCardVisible.current = cardVisible;
+          setShowCard(cardVisible);
+        }
 
-        // Usamos jumpTo para evitar conflictos con las animaciones nativas de Mapbox,
-        // ya que el ScrollTrigger dicta los valores precisos en cada frame (scrubbing)
         try {
           mapRef.current?.jumpTo({
             center: [targetState.lng, targetState.lat],
