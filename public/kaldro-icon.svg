@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1092" height="1092" viewBox="0 0 1092 1092">
+  <defs>
+    <linearGradient id="kaldroArrowGrad" gradientUnits="userSpaceOnUse" x1="420" y1="590" x2="780" y2="220">
+      <stop offset="0" stop-color="#15B6C0"/>
+      <stop offset="0.33" stop-color="#34E0E0"/>
+      <stop offset="1" stop-color="#34E0E0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Top left square ring -->
+  <path fill="#EAF4F6" fill-rule="evenodd" d="M295 287H396V385H295Z M321 312H371V361H321Z"/>
+  <!-- Left vertical stem -->
+  <rect x="332" y="384" width="28" height="295" fill="#EAF4F6"/>
+  <!-- Bottom left square with cyan inset -->
+  <rect x="295" y="679" width="101" height="101" fill="#EAF4F6"/>
+  <rect x="321" y="704" width="52" height="52" fill="#34E0E0"/>
+
+  <!-- Upper inner arm -->
+  <path fill="#EAF4F6" d="M390 423H456L473 458L436 496L390 548Z"/>
+
+  <!-- Lower connector -->
+  <path fill="#EAF4F6" d="M409 725H540L586 770H667V792H578L533 748H409Z"/>
+
+  <!-- Lower right arm -->
+  <path fill="#EAF4F6" d="M563 534L512 588L687 769V834H799V725H748Z"/>
+
+  <!-- Cyan arrow -->
+  <path fill="url(#kaldroArrowGrad)" d="M389 580V638H437L736 315L768 345L797 196L643 236L683 266L389 580Z"/>
+</svg>
+
