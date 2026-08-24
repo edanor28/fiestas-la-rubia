@@ -362,12 +362,12 @@ export const GlobeScene: React.FC = () => {
 
         {/* 
           Tarjeta UI (Single Unified Floating Glass Card):
-          - Mobile / Tablet: Centrada abajo con márgenes.
-          - Desktop (lg): Flotante cuadrante inferior izquierdo.
+          - Mobile: Elevada con bottom-[4.75rem] para no tapar ni ser tapada por los botones de sonido y Kaldro.
+          - Tablet / Desktop: Flotante en cuadrante inferior izquierdo.
         */}
         <div
           data-testid="event-card-container"
-          className={`absolute z-20 flex w-full md:w-auto left-0 right-0 md:right-auto bottom-3 sm:bottom-6 md:bottom-8 lg:bottom-10 md:left-8 lg:left-10 px-3 sm:px-5 md:px-0 transition-all duration-700 ease-out transform ${
+          className={`absolute z-20 flex w-full md:w-auto left-0 right-0 md:right-auto bottom-[4.75rem] sm:bottom-20 md:bottom-8 lg:bottom-10 md:left-8 lg:left-10 px-3 sm:px-5 md:px-0 transition-all duration-700 ease-out transform ${
             showCard
               ? 'translate-y-0 opacity-100 scale-100'
               : 'translate-y-8 sm:translate-y-12 opacity-0 scale-95 pointer-events-none'

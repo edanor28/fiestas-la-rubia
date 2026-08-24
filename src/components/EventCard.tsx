@@ -106,7 +106,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) =
         id={`event-card-${event.id}`}
         data-testid="event-card"
         data-event-id={event.id}
-        className={`relative w-full rounded-3xl bg-[#0F172A]/95 backdrop-blur-2xl border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)] p-4 sm:p-5 text-white flex flex-col gap-2.5 sm:gap-3 transition-all duration-300 ${className}`}
+        className={`relative w-full rounded-3xl bg-[#0F172A]/95 backdrop-blur-2xl border border-white/20 shadow-[0_25px_60px_rgba(0,0,0,0.8)] p-3.5 sm:p-5 text-white flex flex-col gap-2 sm:gap-3 max-h-[calc(100vh-11rem)] sm:max-h-[calc(100vh-9rem)] overflow-y-auto scrollbar-hide transition-all duration-300 ${className}`}
       >
         {/* Header: Badge temporal & Fecha */}
         <header className="relative z-10 flex items-center justify-between gap-2 flex-wrap">
